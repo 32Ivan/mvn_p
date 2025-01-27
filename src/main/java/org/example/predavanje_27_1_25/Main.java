@@ -1,106 +1,119 @@
 package org.example.predavanje_27_1_25;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Persistence;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 
 import java.math.BigDecimal;
 
 public class Main {
 
-    static EntityManagerFactory emf = Persistence.createEntityManagerFactory("JpaExampleUnit");
+//    static EntityManagerFactory emf = Persistence.createEntityManagerFactory("JpaExampleUnit");
 
+
+    private static SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 
     public static void main(String[] args) {
 
         Product product = new Product();
-        product.setName("Knjiga1");
+        product.setName("Knjiga122");
         product.setPrice(BigDecimal.valueOf(200));
 
 
         Product p = addProduct(product);
-//        updateProduct(product);
-//        selectProduct(product);
-//        deleteProduct(product);
+        updateProduct(p);
+        selectProduct(product);
+        deleteProduct(product);
 
     }
 
     private static void deleteProduct(Product product) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
         try {
-            et.begin();
+            transaction = session.beginTransaction();
+            Product p = session.get(Product.class, product.getId());
 
-            et.commit();
+            session.delete(p);
+            System.out.println("ID " + p.getId());
+
+            transaction.commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            if (et.isActive()) {
-                et.rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
         } finally {
-            em.close();
+            session.close();
+
         }
+
     }
 
     private static void selectProduct(Product product) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction et = em.getTransaction();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
         try {
-            et.begin();
-            et.commit();
+            transaction = session.beginTransaction();
+            Product p = session.get(Product.class, product.getId());
+
+            System.out.println("ID : " + p.getId() + " " + p.getName());
+
+            transaction.commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            if (et.isActive()) {
-                et.rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
         } finally {
-            em.close();
+            session.close();
+
         }
 
     }
 
     private static void updateProduct(Product product) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction et = em.getTransaction();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
         try {
-            et.begin();
-            Product p = em.find(Product.class, product.getId());
-            System.out.println(p.getId());
-            p.setName("Knjiga36");
+            transaction = session.beginTransaction();
+            Product p = session.get(Product.class, product.getId());
+            p.setName("KNJIGA 22");
+            session.update(p);
 
-            em.merge(p);
-            et.commit();
+            transaction.commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            if (et.isActive()) {
-                et.rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
         } finally {
-            em.close();
+            session.close();
+
         }
 
     }
 
     private static Product addProduct(Product product) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction et = em.getTransaction();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
         try {
-            et.begin();
-            em.persist(product);
-            et.commit();
+            transaction = session.beginTransaction();
+            session.save(product);
+
+            transaction.commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            if (et.isActive()) {
-                et.rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
         } finally {
-            em.close();
+            session.close();
 
         }
         return product;
